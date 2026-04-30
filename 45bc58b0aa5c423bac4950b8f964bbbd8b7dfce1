@@ -1,0 +1,1 @@
+{"v":1,"f":{"README.md":[{"s":"agent|claude(claude-opus-4-7)","l":["1-208"]}],"backend/.env.example":[{"s":"agent|claude(claude-opus-4-7)","l":["1-2","4-8"]}],"backend/app/main.py":[{"s":"agent|claude(claude-opus-4-7)","l":[2,"12-24"]},{"s":"operator","l":[11,"32-34",37]}]}}
