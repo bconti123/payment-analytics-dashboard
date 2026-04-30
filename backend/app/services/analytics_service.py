@@ -69,7 +69,9 @@ def revenue_trend(
     db: Session, start: date, end: date, interval: Interval = "day"
 ) -> RevenueTrend:
     start_dt, end_dt = _date_range_to_datetimes(start, end)
-    bucket = func.date_trunc(interval, Transaction.created_at).label("bucket")
+    bucket = func.date_trunc(
+        interval, func.timezone("UTC", Transaction.created_at)
+    ).label("bucket")
 
     rows = db.execute(
         select(
@@ -101,7 +103,9 @@ def refund_trend(
     db: Session, start: date, end: date, interval: Interval = "day"
 ) -> RefundTrend:
     start_dt, end_dt = _date_range_to_datetimes(start, end)
-    bucket = func.date_trunc(interval, Refund.created_at).label("bucket")
+    bucket = func.date_trunc(
+        interval, func.timezone("UTC", Refund.created_at)
+    ).label("bucket")
 
     rows = db.execute(
         select(
