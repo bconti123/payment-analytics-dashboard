@@ -23,7 +23,7 @@ from app.models import Base
 def _test_database_url() -> str:
     if env_url := os.getenv("TEST_DATABASE_URL"):
         return env_url
-    return str(make_url(settings.database_url).set(database="payment_analytics_test"))
+    return make_url(settings.database_url).set(database="payment_analytics_test").render_as_string(hide_password=False)
 
 
 @pytest.fixture(scope="session")

@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: payment_analytics
+    # Host port 5433 avoids clashing with a local Postgres on 5432.
+    # Connect from the host with: psql -h localhost -p 5433 -U postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d payment_analytics"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      # Inside the compose network, talk to the db service on its container port.
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/payment_analytics
+      DEBUG: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

@@ -68,7 +68,46 @@ backend/
 └── requirements.txt
 ```
 
-## Local setup
+## Run with Docker (one command)
+
+The fastest way to run the whole stack — Postgres + API — with no local Python or DB install.
+
+```bash
+docker compose up --build
+```
+
+- API: http://localhost:8000  (Swagger UI at `/docs`)
+- Postgres: `localhost:5433` (mapped from container 5432 — avoids clashing with a local Postgres)
+- Migrations run automatically on container start (`alembic upgrade head`).
+- Both `payment_analytics` and `payment_analytics_test` are created on first boot.
+
+Seed local data:
+
+```bash
+docker compose exec api python -m scripts.seed
+```
+
+Run tests inside the container:
+
+```bash
+docker compose exec api pytest
+```
+
+Tear down (keeps the data volume):
+
+```bash
+docker compose down
+```
+
+Wipe the database too:
+
+```bash
+docker compose down -v
+```
+
+> **Port 5432 already in use?** Either keep the default 5433 mapping in `docker-compose.yml` (recommended — both can coexist), or stop the local service first: `sudo systemctl stop postgresql`, then change `5433:5432` to `5432:5432`.
+
+## Local setup (without Docker)
 
 ### 1. Prerequisites
 
@@ -200,7 +239,6 @@ curl 'http://localhost:8000/api/v1/dashboard/summary?start=2026-04-01&end=2026-0
 - Redis caching for dashboard summary
 - Anomaly detection on daily revenue (z-score)
 - AI-generated weekly narrative via the Claude API
-- Dockerfile + docker-compose for one-command setup
 - GitHub Actions CI (pytest + ruff)
 
 ## License
