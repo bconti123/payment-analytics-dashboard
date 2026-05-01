@@ -1,0 +1,1 @@
+{"v":1,"f":{"frontend/package-lock.json":[{"s":"unknown","l":[12,"2259-2284"]}],"frontend/package.json":[{"s":"unknown","l":["1-35"]}],"frontend/src/components/sidebar.tsx":[{"s":"agent|claude(claude-opus-4-7)","l":["1-49"]}],"frontend/src/components/ui/card.tsx":[{"s":"unknown","l":["1-103"]}],"frontend/src/components/ui/skeleton.tsx":[{"s":"unknown","l":["1-13"]}]}}
