@@ -1,15 +1,15 @@
+import { SummaryCards } from "@/components/dashboard/summary-cards"
+
 export default function DashboardPage() {
   return (
     <div className="px-8 py-8">
       <header className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Overview of revenue, transactions, and refunds.
+          Overview for the last 30 days.
         </p>
       </header>
-      <div className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">
-        KPI cards and trend charts arrive in steps 4–6.
-      </div>
+      <SummaryCards />
     </div>
   )
 }
