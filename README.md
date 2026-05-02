@@ -1,5 +1,7 @@
 # Payment Analytics Dashboard
 
+[![CI](https://github.com/bconti123/payment-analytics-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/bconti123/payment-analytics-dashboard/actions/workflows/ci.yml)
+
 A full-stack payment analytics dashboard that helps businesses track transactions, refunds, revenue trends, and operational metrics.
 
 **Status:** Full-stack MVP complete — backend API + Next.js frontend, both runnable with one `docker compose up`.
@@ -261,7 +263,6 @@ curl 'http://localhost:8000/api/v1/dashboard/summary?start=2026-04-01&end=2026-0
 - Anomaly detection on daily revenue (z-score)
 - AI-generated weekly narrative via the Claude API
 - URL-synced filter/pagination state on the frontend tables
-- GitHub Actions CI (pytest + ruff + vitest)
 
 ## License
 
