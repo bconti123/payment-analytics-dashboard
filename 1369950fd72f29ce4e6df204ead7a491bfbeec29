@@ -1,0 +1,1 @@
+{"v":1,"f":{".github/workflows/ci.yml":[{"s":"agent|claude(claude-opus-4-7)","l":["1-68"]}],"requirements.txt":[{"s":"agent|claude(claude-opus-4-7)","l":[3,"5-10"]},{"s":"unknown","l":["1-2",4]}]}}
