@@ -7,3 +7,4 @@ alembic
 pytest
 httpx
 faker
+ruff
