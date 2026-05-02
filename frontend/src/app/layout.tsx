@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
-import { Sidebar } from "@/components/sidebar"
+import { MobileNav, Sidebar } from "@/components/app-nav"
 
 import "./globals.css"
 import { Providers } from "./providers"
@@ -30,13 +30,25 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-background text-foreground">
         <Providers>
-          <div className="flex min-h-screen">
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-foreground focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-background focus:shadow-md"
+          >
+            Skip to content
+          </a>
+          <div className="flex min-h-screen flex-col md:flex-row">
             <Sidebar />
-            <main className="flex-1 overflow-x-auto">{children}</main>
+            <div className="flex flex-1 flex-col overflow-x-auto">
+              <MobileNav />
+              <main id="main" className="flex-1">
+                {children}
+              </main>
+            </div>
           </div>
         </Providers>
       </body>

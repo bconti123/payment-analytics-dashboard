@@ -31,6 +31,9 @@ export function RefundsTable() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [page, setPage] = useState(1)
 
+  const dateRangeError =
+    filters.start !== "" && filters.end !== "" && filters.start > filters.end
+
   const params = {
     start: filters.start || undefined,
     end: filters.end || undefined,
@@ -42,6 +45,7 @@ export function RefundsTable() {
     queryKey: ["refunds", "list", params],
     queryFn: () => listRefunds(params),
     placeholderData: keepPreviousData,
+    enabled: !dateRangeError,
   })
 
   function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
@@ -66,6 +70,7 @@ export function RefundsTable() {
         onChange={updateFilter}
         onReset={resetFilters}
         canReset={hasActiveFilters}
+        dateRangeError={dateRangeError}
       />
 
       <div className="rounded-lg border bg-card">
@@ -150,13 +155,16 @@ function FilterBar({
   onChange,
   onReset,
   canReset,
+  dateRangeError,
 }: {
   filters: Filters
   onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void
   onReset: () => void
   canReset: boolean
+  dateRangeError: boolean
 }) {
   return (
+    <div className="space-y-2">
     <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
       <FilterField label="Start" htmlFor="filter-start">
         <input
@@ -187,6 +195,15 @@ function FilterBar({
       >
         Reset
       </Button>
+    </div>
+      {dateRangeError && (
+        <p
+          role="alert"
+          className="px-1 text-xs text-destructive"
+        >
+          End date must be on or after start date.
+        </p>
+      )}
     </div>
   )
 }

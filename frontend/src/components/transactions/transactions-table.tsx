@@ -45,6 +45,9 @@ export function TransactionsTable() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [page, setPage] = useState(1)
 
+  const dateRangeError =
+    filters.start !== "" && filters.end !== "" && filters.start > filters.end
+
   const params = {
     status: filters.status || undefined,
     method: filters.method || undefined,
@@ -58,6 +61,7 @@ export function TransactionsTable() {
     queryKey: ["transactions", "list", params],
     queryFn: () => listTransactions(params),
     placeholderData: keepPreviousData,
+    enabled: !dateRangeError,
   })
 
   function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
@@ -87,6 +91,7 @@ export function TransactionsTable() {
         onChange={updateFilter}
         onReset={resetFilters}
         canReset={hasActiveFilters}
+        dateRangeError={dateRangeError}
       />
 
       <div className="rounded-lg border bg-card">
@@ -173,13 +178,16 @@ function FilterBar({
   onChange,
   onReset,
   canReset,
+  dateRangeError,
 }: {
   filters: Filters
   onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void
   onReset: () => void
   canReset: boolean
+  dateRangeError: boolean
 }) {
   return (
+    <div className="space-y-2">
     <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
       <FilterField label="Status" htmlFor="filter-status">
         <select
@@ -246,6 +254,15 @@ function FilterBar({
       >
         Reset
       </Button>
+    </div>
+      {dateRangeError && (
+        <p
+          role="alert"
+          className="px-1 text-xs text-destructive"
+        >
+          End date must be on or after start date.
+        </p>
+      )}
     </div>
   )
 }
