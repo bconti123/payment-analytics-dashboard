@@ -77,3 +77,26 @@ export async function apiPost<T>(
   }
   return schema.parse(await res.json())
 }
+
+export async function apiUpload<T>(
+  path: string,
+  schema: z.ZodType<T>,
+  file: File,
+  fieldName = "file",
+): Promise<T> {
+  const form = new FormData()
+  form.append(fieldName, file)
+  const res = await fetch(buildUrl(path), {
+    method: "POST",
+    headers: { Accept: "application/json" },
+    body: form,
+  })
+  if (!res.ok) {
+    throw new ApiError(
+      res.status,
+      `POST ${path} failed with ${res.status}`,
+      await parseError(res),
+    )
+  }
+  return schema.parse(await res.json())
+}

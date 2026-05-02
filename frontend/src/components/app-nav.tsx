@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutDashboard, Receipt, Undo2 } from "lucide-react"
+import { FileUp, LayoutDashboard, Receipt, Undo2 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: Receipt },
   { href: "/refunds", label: "Refunds", icon: Undo2 },
+  { href: "/import", label: "Import", icon: FileUp },
 ] as const
 
 export function Sidebar() {

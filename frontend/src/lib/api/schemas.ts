@@ -118,6 +118,21 @@ export const refundTrendSchema = z.object({
 export type RefundTrendPoint = z.infer<typeof refundTrendPointSchema>
 export type RefundTrend = z.infer<typeof refundTrendSchema>
 
+export const importRowErrorSchema = z.object({
+  row: z.number(),
+  message: z.string(),
+})
+
+export const importResultSchema = z.object({
+  imported: z.number(),
+  skipped: z.number(),
+  failed: z.number(),
+  errors: z.array(importRowErrorSchema),
+})
+
+export type ImportRowError = z.infer<typeof importRowErrorSchema>
+export type ImportResult = z.infer<typeof importResultSchema>
+
 export const weeklyInsightSchema = z.object({
   week_start: z.string(),
   week_end: z.string(),
