@@ -4,7 +4,16 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Index, Numeric, String, func
+from sqlalchemy import (
+    DateTime,
+    Enum as SAEnum,
+    ForeignKey,
+    Index,
+    Numeric,
+    String,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -49,6 +58,7 @@ class Transaction(Base):
         SAEnum(PaymentMethod, name="payment_method"), nullable=False
     )
     description: Mapped[str | None] = mapped_column(String(500))
+    external_id: Mapped[str | None] = mapped_column(String(128))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -63,4 +73,10 @@ class Transaction(Base):
 
     __table_args__ = (
         Index("ix_transactions_status_created_at", "status", "created_at"),
+        Index(
+            "ux_transactions_external_id",
+            "external_id",
+            unique=True,
+            postgresql_where=text("external_id IS NOT NULL"),
+        ),
     )

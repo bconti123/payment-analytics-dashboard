@@ -1,0 +1,4 @@
+id,created,amount,currency,status,payment_method,customer_email,description
+pi_001,2026-04-15T10:30:00Z,12500,USD,succeeded,card,alice@example.com,T-shirt order
+pi_002,2026-04-16T14:22:00Z,8000,USD,succeeded,wallet,bob@example.com,Subscription renewal
+pi_003,2026-04-17T09:11:00Z,4999,USD,failed,card,carol@example.com,

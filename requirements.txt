@@ -9,3 +9,5 @@ httpx
 faker
 ruff
 anthropic
+pandas
+python-multipart
