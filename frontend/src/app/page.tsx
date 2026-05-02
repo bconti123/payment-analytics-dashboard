@@ -1,6 +1,7 @@
 import { RefundTrendChart } from "@/components/dashboard/refund-trend-chart"
 import { RevenueTrendChart } from "@/components/dashboard/revenue-trend-chart"
 import { SummaryCards } from "@/components/dashboard/summary-cards"
+import { WeeklyInsightCard } from "@/components/dashboard/weekly-insight-card"
 
 export default function DashboardPage() {
   return (
@@ -12,6 +13,7 @@ export default function DashboardPage() {
         </p>
       </header>
       <SummaryCards />
+      <WeeklyInsightCard />
       <div className="grid gap-6 lg:grid-cols-2">
         <RevenueTrendChart />
         <RefundTrendChart />

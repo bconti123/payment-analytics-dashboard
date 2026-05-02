@@ -118,6 +118,19 @@ export const refundTrendSchema = z.object({
 export type RefundTrendPoint = z.infer<typeof refundTrendPointSchema>
 export type RefundTrend = z.infer<typeof refundTrendSchema>
 
+export const weeklyInsightSchema = z.object({
+  week_start: z.string(),
+  week_end: z.string(),
+  narrative: z.string(),
+  summary: dashboardSummarySchema,
+  previous_summary: dashboardSummarySchema,
+  model: z.string(),
+  generated_at: z.string(),
+  cached: z.boolean(),
+})
+
+export type WeeklyInsight = z.infer<typeof weeklyInsightSchema>
+
 // Create payloads (sent from the client)
 
 export const transactionCreateSchema = z.object({
