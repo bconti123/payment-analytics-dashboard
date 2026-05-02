@@ -1,3 +1,4 @@
+import { AnomaliesCard } from "@/components/dashboard/anomalies-card"
 import { RefundTrendChart } from "@/components/dashboard/refund-trend-chart"
 import { RevenueTrendChart } from "@/components/dashboard/revenue-trend-chart"
 import { SummaryCards } from "@/components/dashboard/summary-cards"
@@ -13,7 +14,10 @@ export default function DashboardPage() {
         </p>
       </header>
       <SummaryCards />
-      <WeeklyInsightCard />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <WeeklyInsightCard />
+        <AnomaliesCard />
+      </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <RevenueTrendChart />
         <RefundTrendChart />

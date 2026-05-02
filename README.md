@@ -259,7 +259,6 @@ curl 'http://localhost:8000/api/v1/dashboard/summary?start=2026-04-01&end=2026-0
 - Auth (JWT) and role-based access
 - Multi-currency normalization (daily FX rates)
 - Redis caching for dashboard summary
-- Anomaly detection on daily revenue (z-score)
 
 ## License
 

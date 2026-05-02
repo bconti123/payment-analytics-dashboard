@@ -118,6 +118,25 @@ export const refundTrendSchema = z.object({
 export type RefundTrendPoint = z.infer<typeof refundTrendPointSchema>
 export type RefundTrend = z.infer<typeof refundTrendSchema>
 
+export const anomalySchema = z.object({
+  date: z.string(),
+  revenue: z.string(),
+  baseline_mean: z.string(),
+  baseline_stddev: z.string(),
+  z_score: z.number(),
+  direction: z.enum(["high", "low"]),
+})
+
+export const anomalyReportSchema = z.object({
+  window: dateRangeSchema,
+  threshold: z.number(),
+  baseline_days: z.number(),
+  anomalies: z.array(anomalySchema),
+})
+
+export type Anomaly = z.infer<typeof anomalySchema>
+export type AnomalyReport = z.infer<typeof anomalyReportSchema>
+
 export const importRowErrorSchema = z.object({
   row: z.number(),
   message: z.string(),
