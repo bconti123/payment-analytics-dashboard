@@ -256,13 +256,10 @@ curl 'http://localhost:8000/api/v1/dashboard/summary?start=2026-04-01&end=2026-0
 
 ## Roadmap (post-MVP)
 
-- CSV import via pandas (Stripe-style exports)
 - Auth (JWT) and role-based access
 - Multi-currency normalization (daily FX rates)
 - Redis caching for dashboard summary
 - Anomaly detection on daily revenue (z-score)
-- AI-generated weekly narrative via the Claude API
-- URL-synced filter/pagination state on the frontend tables
 
 ## License
 
