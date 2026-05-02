@@ -2,7 +2,7 @@
 
 A full-stack payment analytics dashboard that helps businesses track transactions, refunds, revenue trends, and operational metrics.
 
-**Status:** Backend MVP complete. Frontend (React/Next.js) planned next.
+**Status:** Full-stack MVP complete — backend API + Next.js frontend, both runnable with one `docker compose up`.
 
 ## Tech stack
 
@@ -16,13 +16,27 @@ A full-stack payment analytics dashboard that helps businesses track transaction
 - pytest + httpx — test suite hitting a real Postgres instance
 - Faker — local seed data
 
-**Frontend (planned)** — React or Next.js
+**Frontend**
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Tailwind CSS 4 + shadcn/ui (lucide icons)
+- TanStack Query for server state, Zod for runtime API validation
+- Recharts for trend visualizations
+- next-themes for light/dark
+- Vitest + Testing Library for component tests
+
+See [`frontend/README.md`](frontend/README.md) for full frontend docs.
 
 ## Architecture
 
 ```
-┌──────────────────────┐         HTTPS / JSON
-│  Frontend (planned)  │ ─────────────────────────┐
+┌──────────────────────┐         HTTP / JSON
+│  Next.js frontend    │ ─────────────────────────┐
+│  ─────────────────   │                          │
+│  App Router pages    │                          │
+│      ▼               │                          │
+│  TanStack Query +    │                          │
+│  Zod-validated       │                          │
+│  API client          │                          │
 └──────────────────────┘                          ▼
                                        ┌─────────────────────┐
                                        │   FastAPI App       │
@@ -43,45 +57,53 @@ A full-stack payment analytics dashboard that helps businesses track transaction
                                        └─────────────────────┘
 ```
 
-Routers stay thin; services own queries and business rules; schemas enforce the API contract. Domain exceptions (`NotFoundError`, `BusinessRuleError`) keep services HTTP-agnostic so they're testable without FastAPI.
+Routers stay thin; services own queries and business rules; schemas enforce the API contract. Domain exceptions (`NotFoundError`, `BusinessRuleError`) keep services HTTP-agnostic so they're testable without FastAPI. On the frontend, the same shapes are mirrored as Zod schemas so contract drift surfaces at runtime instead of in production logs.
 
 ## Project structure
 
 ```
-backend/
-├── app/
-│   ├── main.py                  # FastAPI app, CORS, router includes
-│   ├── core/
-│   │   ├── config.py            # Pydantic settings (.env-anchored)
-│   │   └── database.py          # Engine, SessionLocal, get_db
-│   ├── models/                  # SQLAlchemy ORM (customers, transactions, refunds)
-│   ├── schemas/                 # Pydantic request/response shapes
-│   ├── routers/                 # transactions, refunds, dashboard
-│   └── services/                # transaction, refund, analytics
-├── alembic/                     # migrations
-├── alembic.ini
-├── scripts/
-│   └── seed.py                  # Faker-based local data
-├── tests/                       # pytest (13 tests, real Postgres)
-├── pytest.ini
-├── .env.example
-└── requirements.txt
+.
+├── backend/
+│   ├── app/
+│   │   ├── main.py                  # FastAPI app, CORS, router includes
+│   │   ├── core/                    # config, database
+│   │   ├── models/                  # SQLAlchemy ORM (customers, transactions, refunds)
+│   │   ├── schemas/                 # Pydantic request/response shapes
+│   │   ├── routers/                 # transactions, refunds, dashboard
+│   │   └── services/                # transaction, refund, analytics
+│   ├── alembic/                     # migrations
+│   ├── scripts/seed.py              # Faker-based local data
+│   ├── tests/                       # pytest, real Postgres
+│   ├── Dockerfile
+│   └── .env.example
+├── frontend/                        # Next.js app — see frontend/README.md
+│   ├── src/
+│   │   ├── app/                     # App Router routes
+│   │   ├── components/              # dashboard, transactions, refunds, ui (shadcn)
+│   │   ├── lib/api/                 # Typed client + Zod schemas
+│   │   └── test/                    # Vitest setup + render helper
+│   ├── Dockerfile                   # Multi-stage standalone build
+│   └── vitest.config.ts
+├── db/init.sql                      # Creates payment_analytics_test on first boot
+├── docker-compose.yml               # db + api + web
+└── README.md                        # this file
 ```
 
 ## Run with Docker (one command)
 
-The fastest way to run the whole stack — Postgres + API — with no local Python or DB install.
+The fastest way to run the whole stack — Postgres + API + frontend — with no local Python, Node, or DB install.
 
 ```bash
 docker compose up --build
 ```
 
+- Frontend: http://localhost:3000
 - API: http://localhost:8000  (Swagger UI at `/docs`)
 - Postgres: `localhost:5433` (mapped from container 5432 — avoids clashing with a local Postgres)
 - Migrations run automatically on container start (`alembic upgrade head`).
 - Both `payment_analytics` and `payment_analytics_test` are created on first boot.
 
-Seed local data:
+Seed local data (recommended on first run, otherwise the dashboard is empty):
 
 ```bash
 docker compose exec api python -m scripts.seed
@@ -232,14 +254,14 @@ curl 'http://localhost:8000/api/v1/dashboard/summary?start=2026-04-01&end=2026-0
 
 ## Roadmap (post-MVP)
 
-- React/Next.js frontend with charts
 - CSV import via pandas (Stripe-style exports)
 - Auth (JWT) and role-based access
 - Multi-currency normalization (daily FX rates)
 - Redis caching for dashboard summary
 - Anomaly detection on daily revenue (z-score)
 - AI-generated weekly narrative via the Claude API
-- GitHub Actions CI (pytest + ruff)
+- URL-synced filter/pagination state on the frontend tables
+- GitHub Actions CI (pytest + ruff + vitest)
 
 ## License
 
