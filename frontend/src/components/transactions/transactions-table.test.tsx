@@ -3,7 +3,13 @@ import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 
 import { TransactionsTable } from "./transactions-table"
+import { resetMockUrl } from "@/test/next-navigation-mock"
 import { renderWithQueryClient } from "@/test/render"
+
+vi.mock("next/navigation", async () => {
+  const { createNavigationMock } = await import("@/test/next-navigation-mock")
+  return createNavigationMock("/transactions")
+})
 
 vi.mock("@/lib/api", () => ({
   listTransactions: vi.fn(),
@@ -18,6 +24,7 @@ function emptyPage(page = 1) {
 
 describe("TransactionsTable", () => {
   beforeEach(() => {
+    resetMockUrl()
     mockListTransactions.mockReset()
     mockListTransactions.mockResolvedValue(emptyPage())
   })

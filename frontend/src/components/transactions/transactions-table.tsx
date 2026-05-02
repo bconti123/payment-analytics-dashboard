@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import { useQuery, keepPreviousData } from "@tanstack/react-query"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useCallback } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,8 @@ const STATUSES: TransactionStatus[] = [
   "refunded",
 ]
 const METHODS: PaymentMethod[] = ["card", "bank_transfer", "wallet"]
+const STATUSES_SET = new Set<string>(STATUSES)
+const METHODS_SET = new Set<string>(METHODS)
 const PAGE_SIZE = 25
 
 type Filters = {
@@ -39,11 +42,22 @@ type Filters = {
   end: string
 }
 
-const EMPTY_FILTERS: Filters = { status: "", method: "", start: "", end: "" }
-
 export function TransactionsTable() {
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
-  const [page, setPage] = useState(1)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const filters: Filters = {
+    status: pickEnum(searchParams.get("status"), STATUSES_SET) as
+      | TransactionStatus
+      | "",
+    method: pickEnum(searchParams.get("method"), METHODS_SET) as
+      | PaymentMethod
+      | "",
+    start: searchParams.get("start") ?? "",
+    end: searchParams.get("end") ?? "",
+  }
+  const page = Math.max(1, Number(searchParams.get("page")) || 1)
 
   const dateRangeError =
     filters.start !== "" && filters.end !== "" && filters.start > filters.end
@@ -64,15 +78,38 @@ export function TransactionsTable() {
     enabled: !dateRangeError,
   })
 
-  function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-    setPage(1)
-  }
+  const writeParams = useCallback(
+    (next: URLSearchParams) => {
+      const qs = next.toString()
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+    },
+    [router, pathname],
+  )
 
-  function resetFilters() {
-    setFilters(EMPTY_FILTERS)
-    setPage(1)
-  }
+  const updateFilter = useCallback(
+    <K extends keyof Filters>(key: K, value: Filters[K]) => {
+      const next = new URLSearchParams(searchParams.toString())
+      if (value === "") next.delete(key)
+      else next.set(key, String(value))
+      next.delete("page")
+      writeParams(next)
+    },
+    [searchParams, writeParams],
+  )
+
+  const setPage = useCallback(
+    (newPage: number) => {
+      const next = new URLSearchParams(searchParams.toString())
+      if (newPage <= 1) next.delete("page")
+      else next.set("page", String(newPage))
+      writeParams(next)
+    },
+    [searchParams, writeParams],
+  )
+
+  const resetFilters = useCallback(() => {
+    writeParams(new URLSearchParams())
+  }, [writeParams])
 
   const hasActiveFilters =
     filters.status !== "" ||
@@ -152,7 +189,7 @@ export function TransactionsTable() {
             variant="outline"
             size="sm"
             disabled={page <= 1 || isLoading}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => setPage(page - 1)}
           >
             Previous
           </Button>
@@ -163,7 +200,7 @@ export function TransactionsTable() {
             variant="outline"
             size="sm"
             disabled={!data || page >= totalPages || isLoading}
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => setPage(page + 1)}
           >
             Next
           </Button>
@@ -358,6 +395,10 @@ function SkeletonRows() {
       ))}
     </>
   )
+}
+
+function pickEnum(raw: string | null, allowed: Set<string>): string {
+  return raw && allowed.has(raw) ? raw : ""
 }
 
 function labelize(value: string): string {

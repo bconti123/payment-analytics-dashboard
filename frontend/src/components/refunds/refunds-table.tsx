@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import { useQuery, keepPreviousData } from "@tanstack/react-query"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useCallback } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -25,11 +26,16 @@ type Filters = {
   end: string
 }
 
-const EMPTY_FILTERS: Filters = { start: "", end: "" }
-
 export function RefundsTable() {
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
-  const [page, setPage] = useState(1)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const filters: Filters = {
+    start: searchParams.get("start") ?? "",
+    end: searchParams.get("end") ?? "",
+  }
+  const page = Math.max(1, Number(searchParams.get("page")) || 1)
 
   const dateRangeError =
     filters.start !== "" && filters.end !== "" && filters.start > filters.end
@@ -48,15 +54,38 @@ export function RefundsTable() {
     enabled: !dateRangeError,
   })
 
-  function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-    setPage(1)
-  }
+  const writeParams = useCallback(
+    (next: URLSearchParams) => {
+      const qs = next.toString()
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+    },
+    [router, pathname],
+  )
 
-  function resetFilters() {
-    setFilters(EMPTY_FILTERS)
-    setPage(1)
-  }
+  const updateFilter = useCallback(
+    <K extends keyof Filters>(key: K, value: Filters[K]) => {
+      const next = new URLSearchParams(searchParams.toString())
+      if (value === "") next.delete(key)
+      else next.set(key, String(value))
+      next.delete("page")
+      writeParams(next)
+    },
+    [searchParams, writeParams],
+  )
+
+  const setPage = useCallback(
+    (newPage: number) => {
+      const next = new URLSearchParams(searchParams.toString())
+      if (newPage <= 1) next.delete("page")
+      else next.set("page", String(newPage))
+      writeParams(next)
+    },
+    [searchParams, writeParams],
+  )
+
+  const resetFilters = useCallback(() => {
+    writeParams(new URLSearchParams())
+  }, [writeParams])
 
   const hasActiveFilters = filters.start !== "" || filters.end !== ""
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
@@ -129,7 +158,7 @@ export function RefundsTable() {
             variant="outline"
             size="sm"
             disabled={page <= 1 || isLoading}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => setPage(page - 1)}
           >
             Previous
           </Button>
@@ -140,7 +169,7 @@ export function RefundsTable() {
             variant="outline"
             size="sm"
             disabled={!data || page >= totalPages || isLoading}
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => setPage(page + 1)}
           >
             Next
           </Button>
