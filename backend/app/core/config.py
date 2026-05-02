@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     database_url: str
     app_name: str = "Payment Analytics Dashboard API"
     debug: bool = False
+    anthropic_api_key: str | None = None
 
 
 settings = Settings()

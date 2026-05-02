@@ -8,6 +8,7 @@ from app.schemas.dashboard import (
     RevenueTrend,
     TrendPoint,
 )
+from app.schemas.insights import WeeklyInsight
 from app.schemas.refund import RefundCreate, RefundOut
 from app.schemas.transaction import TransactionCreate, TransactionOut
 
@@ -25,4 +26,5 @@ __all__ = [
     "TransactionCreate",
     "TransactionOut",
     "TrendPoint",
+    "WeeklyInsight",
 ]

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.routers import dashboard, refunds, transactions
+from app.routers import dashboard, insights, refunds, transactions
 
 app = FastAPI(title=settings.app_name)
 
@@ -27,6 +27,7 @@ API_PREFIX = "/api/v1"
 app.include_router(transactions.router, prefix=API_PREFIX)
 app.include_router(refunds.router, prefix=API_PREFIX)
 app.include_router(dashboard.router, prefix=API_PREFIX)
+app.include_router(insights.router, prefix=API_PREFIX)
 
 
 @app.get("/")
