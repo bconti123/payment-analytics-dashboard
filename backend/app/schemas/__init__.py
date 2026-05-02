@@ -8,12 +8,15 @@ from app.schemas.dashboard import (
     RevenueTrend,
     TrendPoint,
 )
+from app.schemas.anomaly import Anomaly, AnomalyReport
 from app.schemas.imports import ImportResult, ImportRowError
 from app.schemas.insights import WeeklyInsight
 from app.schemas.refund import RefundCreate, RefundOut
 from app.schemas.transaction import TransactionCreate, TransactionOut
 
 __all__ = [
+    "Anomaly",
+    "AnomalyReport",
     "CustomerNested",
     "CustomerOut",
     "DashboardSummary",
