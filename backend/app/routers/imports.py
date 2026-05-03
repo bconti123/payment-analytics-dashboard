@@ -2,11 +2,16 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.deps import require_admin
 from app.schemas.imports import ImportResult
 from app.services import import_service
 from app.services.import_service import CsvFormatError
 
-router = APIRouter(prefix="/imports", tags=["imports"])
+router = APIRouter(
+    prefix="/imports",
+    tags=["imports"],
+    dependencies=[Depends(require_admin)],
+)
 
 MAX_BYTES = 10 * 1024 * 1024  # 10 MB
 

@@ -4,11 +4,16 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.deps import get_current_user
 from app.schemas import AnomalyReport, DashboardSummary, RefundTrend, RevenueTrend
 from app.schemas.dashboard import Interval
 from app.services import analytics_service, anomaly_service
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+router = APIRouter(
+    prefix="/dashboard",
+    tags=["dashboard"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 def _resolve_range(start: date | None, end: date | None) -> tuple[date, date]:

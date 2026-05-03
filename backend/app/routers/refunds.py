@@ -5,10 +5,15 @@ from fastapi import status as http_status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.deps import get_current_user, require_admin
 from app.schemas import Page, RefundCreate, RefundOut
 from app.services import BusinessRuleError, NotFoundError, refund_service
 
-router = APIRouter(prefix="/refunds", tags=["refunds"])
+router = APIRouter(
+    prefix="/refunds",
+    tags=["refunds"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("", response_model=Page[RefundOut])
@@ -34,6 +39,7 @@ def list_refunds(
     "",
     response_model=RefundOut,
     status_code=http_status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
 )
 def create_refund(payload: RefundCreate, db: Session = Depends(get_db)) -> RefundOut:
     try:

@@ -6,11 +6,16 @@ from fastapi import status as http_status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.deps import get_current_user, require_admin
 from app.models import PaymentMethod, TransactionStatus
 from app.schemas import Page, TransactionCreate, TransactionOut
 from app.services import NotFoundError, transaction_service
 
-router = APIRouter(prefix="/transactions", tags=["transactions"])
+router = APIRouter(
+    prefix="/transactions",
+    tags=["transactions"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("", response_model=Page[TransactionOut])
@@ -54,6 +59,7 @@ def get_transaction(
     "",
     response_model=TransactionOut,
     status_code=http_status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
 )
 def create_transaction(
     payload: TransactionCreate, db: Session = Depends(get_db)

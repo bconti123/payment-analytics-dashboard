@@ -4,10 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.deps import get_current_user
 from app.schemas import WeeklyInsight
 from app.services import insights_service
 
-router = APIRouter(prefix="/insights", tags=["insights"])
+router = APIRouter(
+    prefix="/insights",
+    tags=["insights"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("/weekly", response_model=WeeklyInsight)
