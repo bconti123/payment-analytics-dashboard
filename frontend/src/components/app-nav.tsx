@@ -1,10 +1,11 @@
 "use client"
 
-import { FileUp, LayoutDashboard, Receipt, Undo2 } from "lucide-react"
+import { FileUp, LayoutDashboard, LogOut, Receipt, Undo2 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useAuth } from "@/lib/auth/context"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -16,6 +17,13 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    router.replace("/login")
+  }
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
@@ -28,7 +36,7 @@ export function Sidebar() {
         </div>
         <ThemeToggle />
       </div>
-      <nav className="space-y-1 p-3">
+      <nav className="flex-1 space-y-1 p-3">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href
           return (
@@ -49,12 +57,39 @@ export function Sidebar() {
           )
         })}
       </nav>
+      {user && (
+        <div className="border-t border-sidebar-border px-3 py-3">
+          <div className="px-2 pb-2">
+            <div className="truncate text-xs font-medium" title={user.email}>
+              {user.email}
+            </div>
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              {user.role}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+          >
+            <LogOut className="size-4" />
+            Log out
+          </button>
+        </div>
+      )}
     </aside>
   )
 }
 
 export function MobileNav() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    router.replace("/login")
+  }
 
   return (
     <header className="sticky top-0 z-30 flex flex-col gap-2 border-b border-sidebar-border bg-sidebar text-sidebar-foreground md:hidden">
@@ -62,7 +97,19 @@ export function MobileNav() {
         <h1 className="text-sm font-semibold tracking-tight">
           Payment Analytics
         </h1>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {user && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label="Log out"
+              className="rounded-md p-1.5 text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+            >
+              <LogOut className="size-4" />
+            </button>
+          )}
+        </div>
       </div>
       <nav
         aria-label="Primary"

@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { clearToken, getToken } from "@/lib/auth/storage"
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1"
 
@@ -29,11 +31,28 @@ function buildUrl(path: string, query?: Query): string {
   return url.toString()
 }
 
+function authHeader(): Record<string, string> {
+  const token = getToken()
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 async function parseError(res: Response): Promise<unknown> {
   try {
     return await res.json()
   } catch {
     return null
+  }
+}
+
+function handle401(): void {
+  if (typeof window === "undefined") return
+  // Token is invalid/expired — drop it so the next mount sees an unauthed state.
+  // The login page itself shouldn't bounce on its own auth/login 401.
+  if (window.location.pathname !== "/login") {
+    clearToken()
+    window.location.assign(
+      `/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`,
+    )
   }
 }
 
@@ -43,9 +62,10 @@ export async function apiGet<T>(
   query?: Query,
 ): Promise<T> {
   const res = await fetch(buildUrl(path, query), {
-    headers: { Accept: "application/json" },
+    headers: { Accept: "application/json", ...authHeader() },
   })
   if (!res.ok) {
+    if (res.status === 401) handle401()
     throw new ApiError(
       res.status,
       `GET ${path} failed with ${res.status}`,
@@ -65,10 +85,12 @@ export async function apiPost<T>(
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      ...authHeader(),
     },
     body: JSON.stringify(body),
   })
   if (!res.ok) {
+    if (res.status === 401) handle401()
     throw new ApiError(
       res.status,
       `POST ${path} failed with ${res.status}`,
@@ -88,10 +110,11 @@ export async function apiUpload<T>(
   form.append(fieldName, file)
   const res = await fetch(buildUrl(path), {
     method: "POST",
-    headers: { Accept: "application/json" },
+    headers: { Accept: "application/json", ...authHeader() },
     body: form,
   })
   if (!res.ok) {
+    if (res.status === 401) handle401()
     throw new ApiError(
       res.status,
       `POST ${path} failed with ${res.status}`,

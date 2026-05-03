@@ -227,6 +227,20 @@ All endpoints are prefixed with `/api/v1`.
 | `GET` | `/dashboard/revenue-trend` | Bucketed revenue series — `interval=day\|week\|month` |
 | `GET` | `/dashboard/refund-trend` | Bucketed refund series |
 
+### Auth
+
+JWT bearer auth (HS256) protects all API routes except `/health` and `/`. Two roles:
+- **admin** — reads everything plus writes (transactions, refunds, CSV import) and the paid weekly insight call.
+- **viewer** — reads everything; gets `403` on writes.
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/auth/login` | Form-encoded `username` + `password` (OAuth2 password flow). Returns a 60-min access token. |
+| `GET` | `/auth/me` | Current user. |
+| `POST` | `/auth/register` | Admin-only. New users default to `viewer`. |
+
+Local dev seeds `admin@example.com` and `viewer@example.com`, both with password `devpassword`.
+
 ### Other
 
 | Method | Path | Description |
@@ -254,9 +268,19 @@ curl 'http://localhost:8000/api/v1/dashboard/summary?start=2026-04-01&end=2026-0
 }
 ```
 
+## Auth design notes
+
+A few deliberate tradeoffs worth flagging since they're the questions a reviewer will ask:
+
+- **JWT in `localStorage`** rather than `httpOnly` cookies. Simpler for a portfolio app with no XSS surface; for a real deployment I'd switch to httpOnly + a CSRF token (or use a managed auth provider).
+- **No refresh tokens.** 60-minute access token; users re-login per session. Refresh-token rotation is real engineering for ~zero portfolio payoff.
+- **Role embedded in JWT claims.** Saves a per-request DB lookup, at the cost of role changes only taking effect after token expiry.
+- **Two roles** (`admin`, `viewer`) — minimum to demonstrate RBAC without inventing tiers for show.
+- **Admin-only registration** — this is a payments dashboard, not a SaaS signup form.
+- Crypto via `pwdlib` (bcrypt) and `pyjwt` — both are the maintained successors to the libraries most older tutorials still recommend (`passlib`, `python-jose`).
+
 ## Roadmap (post-MVP)
 
-- Auth (JWT) and role-based access
 - Multi-currency normalization (daily FX rates)
 - Redis caching for dashboard summary
 

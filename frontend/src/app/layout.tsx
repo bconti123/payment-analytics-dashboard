@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
-import { MobileNav, Sidebar } from "@/components/app-nav"
+import { AppShell } from "@/components/auth/app-shell"
 
 import "./globals.css"
 import { Providers } from "./providers"
@@ -41,15 +41,7 @@ export default function RootLayout({
           >
             Skip to content
           </a>
-          <div className="flex min-h-screen flex-col md:flex-row">
-            <Sidebar />
-            <div className="flex flex-1 flex-col overflow-x-auto">
-              <MobileNav />
-              <main id="main" className="flex-1">
-                {children}
-              </main>
-            </div>
-          </div>
+          <AppShell>{children}</AppShell>
         </Providers>
       </body>
     </html>
