@@ -2,6 +2,7 @@ from app.models.base import Base
 from app.models.customer import Customer
 from app.models.refund import Refund
 from app.models.transaction import PaymentMethod, Transaction, TransactionStatus
+from app.models.user import User, UserRole
 
 __all__ = [
     "Base",
@@ -10,4 +11,6 @@ __all__ = [
     "Refund",
     "Transaction",
     "TransactionStatus",
+    "User",
+    "UserRole",
 ]

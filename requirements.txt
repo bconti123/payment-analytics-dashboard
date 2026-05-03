@@ -11,3 +11,5 @@ ruff
 anthropic
 pandas
 python-multipart
+pwdlib[bcrypt]
+pyjwt

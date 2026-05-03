@@ -17,5 +17,9 @@ class Settings(BaseSettings):
     debug: bool = False
     anthropic_api_key: str | None = None
 
+    jwt_secret: str = "dev-only-do-not-use-in-production-change-me-please"
+    jwt_algorithm: str = "HS256"
+    jwt_access_ttl_minutes: int = 60
+
 
 settings = Settings()

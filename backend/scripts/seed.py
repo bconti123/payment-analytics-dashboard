@@ -20,7 +20,14 @@ from app.models import (
     Refund,
     Transaction,
     TransactionStatus,
+    UserRole,
 )
+from app.services.auth_service import ensure_user
+
+DEV_USERS = [
+    ("admin@example.com", "devpassword", UserRole.admin),
+    ("viewer@example.com", "devpassword", UserRole.viewer),
+]
 
 NUM_CUSTOMERS = 50
 NUM_TRANSACTIONS = 500
@@ -76,9 +83,17 @@ def main() -> None:
         if args.reset and existing:
             print("Wiping existing data...")
             db.execute(
-                text("TRUNCATE refunds, transactions, customers RESTART IDENTITY CASCADE")
+                text("TRUNCATE refunds, transactions, customers, users RESTART IDENTITY CASCADE")
             )
             db.commit()
+
+        print("Seeding dev users...")
+        created_users = []
+        for email, password, role in DEV_USERS:
+            _, created = ensure_user(db, email=email, password=password, role=role)
+            if created:
+                created_users.append((email, role.value))
+        db.commit()
 
         print(f"Creating {NUM_CUSTOMERS} customers...")
         customers = [
@@ -152,6 +167,10 @@ def main() -> None:
         print(f"  Transactions: {NUM_TRANSACTIONS}")
         print(f"  Refunds:      {refunds_created}")
         print(f"  Revenue (succeeded only): ${revenue}")
+        print()
+        print("Dev users (do not use in production):")
+        for email, _password, role in DEV_USERS:
+            print(f"  {email:<25} role={role.value:<8} password=devpassword")
     finally:
         db.close()
 

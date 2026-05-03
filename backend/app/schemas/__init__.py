@@ -9,6 +9,7 @@ from app.schemas.dashboard import (
     TrendPoint,
 )
 from app.schemas.anomaly import Anomaly, AnomalyReport
+from app.schemas.auth import Token, UserCreate, UserOut
 from app.schemas.imports import ImportResult, ImportRowError
 from app.schemas.insights import WeeklyInsight
 from app.schemas.refund import RefundCreate, RefundOut
@@ -29,8 +30,11 @@ __all__ = [
     "RefundTrend",
     "RefundTrendPoint",
     "RevenueTrend",
+    "Token",
     "TransactionCreate",
     "TransactionOut",
     "TrendPoint",
+    "UserCreate",
+    "UserOut",
     "WeeklyInsight",
 ]
