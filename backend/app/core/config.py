@@ -21,5 +21,20 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_access_ttl_minutes: int = 60
 
+    # Localhost dev origins are always allowed. Set CORS_EXTRA_ORIGINS to a
+    # comma-separated list (e.g. https://my-app.vercel.app) to extend.
+    cors_extra_origins: str = ""
+
+    @property
+    def cors_allow_origins(self) -> list[str]:
+        defaults = [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+        ]
+        extras = [o.strip() for o in self.cors_extra_origins.split(",") if o.strip()]
+        return defaults + extras
+
 
 settings = Settings()
