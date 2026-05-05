@@ -1,0 +1,24 @@
+# Frontend has its own Vercel project
+frontend/
+
+# Dev / test artifacts not needed at runtime
+backend/venv/
+backend/.venv/
+backend/tests/
+backend/scripts/
+backend/alembic/
+backend/Dockerfile
+backend/.env
+
+# Infra not needed by the serverless function
+docker-compose.yml
+db/
+.github/
+railway.json
+
+# Docs
+*.md
+
+# Editor
+.vscode/
+.idea/
