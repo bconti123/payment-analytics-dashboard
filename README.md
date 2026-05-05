@@ -5,8 +5,8 @@
 A full-stack payment analytics dashboard that helps businesses track transactions, refunds, revenue trends, and operational metrics.
 
 **Live demo:**
-- Frontend: https://frontend-rouge-ten-14.vercel.app
-- API: https://payment-analytics-dashboard-pi.vercel.app · [Swagger UI](https://payment-analytics-dashboard-pi.vercel.app/docs)
+- Frontend: https://payment-analytics.vercel.app
+- API: https://payment-analytics-api.vercel.app · [Swagger UI](https://payment-analytics-api.vercel.app/docs)
 
 Sign in with `admin@example.com` / `devpassword` (or `viewer@example.com` for read-only).
 
