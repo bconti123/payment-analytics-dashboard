@@ -6,11 +6,11 @@ A full-stack payment analytics dashboard that helps businesses track transaction
 
 **Live demo:**
 - Frontend: https://payment-analytics.vercel.app
-- API: https://payment-analytics-api.vercel.app · [Swagger UI](https://payment-analytics-api.vercel.app/docs)
+- API: https://payment-analytics-api-production.up.railway.app · [Swagger UI](https://payment-analytics-api-production.up.railway.app/docs)
 
 Sign in with `admin@example.com` / `devpassword` (or `viewer@example.com` for read-only).
 
-**Status:** Deployed to production — Vercel (frontend + FastAPI serverless) backed by Neon Postgres. Also runnable locally with one `docker compose up`.
+**Status:** Deployed to production — Vercel (Next.js frontend) + Railway (FastAPI in a persistent container) backed by Neon Postgres. Also runnable locally with one `docker compose up`.
 
 ## Tech stack
 
@@ -206,20 +206,21 @@ pytest -k refund                       # by name pattern
 
 Tests run against `payment_analytics_test` with per-test `SAVEPOINT` rollback, so the dev database is never touched.
 
-## Deploy (Vercel + Neon)
+## Deploy (Vercel + Railway + Neon)
 
-The live demo runs as two Vercel projects sharing one Neon Postgres instance:
+Production runs as three pieces:
 
-- **Frontend** — Next.js, deployed from `frontend/`. Single env var `NEXT_PUBLIC_API_BASE_URL` baked in at build time.
-- **Backend** — FastAPI as a Vercel Python serverless function. `vercel.json` routes everything to `api/index.py`, which imports `app.main:app` from `backend/`. `.vercelignore` keeps the function payload tight (excludes frontend, tests, alembic, Docker files).
+- **Frontend** — Next.js on **Vercel**, deployed from `frontend/`. Single env var `NEXT_PUBLIC_API_BASE_URL` baked in at build time.
+- **Backend** — FastAPI on **Railway** as a persistent container. `railway.json` points at `backend/Dockerfile`; the Dockerfile runs `alembic upgrade head` then `uvicorn` on the Railway-injected `$PORT`. Migrations apply automatically on every deploy.
+- **Database** — **Neon** (serverless Postgres) with a pooled connection string.
 
-Backend env vars (set with `vercel env add`):
+Backend env vars (set with `railway variables --set`):
 - `DATABASE_URL` — Neon **pooled** connection string (the one with `-pooler` in the host).
-- `JWT_SECRET` — `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`.
+- `JWT_SECRET` — `python3 -c "import secrets; print(secrets.token_urlsafe(32), end='')"` (the `end=''` matters — a trailing newline gets stored as part of the secret).
 - `ANTHROPIC_API_KEY` — optional, enables the weekly insight card.
 - `CORS_EXTRA_ORIGINS` — comma-separated list of additional allowed origins (e.g. the deployed frontend URL).
 
-One-time setup against Neon:
+One-time database setup (the migration runs automatically on Railway after this, so this is just for first-time seeding):
 
 ```bash
 cd backend
@@ -227,14 +228,13 @@ DATABASE_URL='<neon-pooled-url>' alembic upgrade head
 DATABASE_URL='<neon-pooled-url>' python -m scripts.seed
 ```
 
-Then `vercel --prod` from the repo root (backend) and from `frontend/`. Every push to `main` auto-redeploys both projects.
+Then `railway up --service payment-analytics-api` for the backend and `vercel --prod` from `frontend/`. Push to `main` auto-redeploys both.
 
-### Tradeoffs that come with serverless FastAPI
+### Why this split
 
-- **Cold starts** ~1–2 s after idle. Subsequent requests in the same container are fast.
-- **10-second execution limit** on Vercel Hobby. Login, dashboard, insights all clear it; CSV import would need a different approach for tens of thousands of rows.
-- **In-memory weekly-insight cache becomes per-invocation.** Every Regenerate click pays Claude (~$0.0005). Acceptable for a portfolio app; would move to Redis for production.
-- **Migrations are manual** (no container-start hook in serverless). Re-run `alembic upgrade head` against Neon after any schema change.
+- **Vercel for the frontend** — Next.js's home turf, free Hobby tier, build/preview/production flow is excellent.
+- **Railway for the backend** — a persistent FastAPI process avoids the gotchas of serverless Python (per-invocation in-memory caches, cold starts on idle, connection-pool churn against Postgres). Cost is small (Railway free trial credit covers an idle container; pay-as-you-go after).
+- **Neon for the DB** — pooled connection string handles whatever connection pattern the backend chooses; persistent Railway connections work fine, and it stays a drop-in if the backend ever moves back to serverless.
 
 ## API reference
 
