@@ -6,16 +6,13 @@ from fastapi import status as http_status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.deps import get_current_user, require_admin
+from app.core.deps import require_admin
 from app.models import PaymentMethod, TransactionStatus
 from app.schemas import Page, TransactionCreate, TransactionOut
 from app.services import NotFoundError, transaction_service
 
-router = APIRouter(
-    prefix="/transactions",
-    tags=["transactions"],
-    dependencies=[Depends(get_current_user)],
-)
+# GET routes are public; only writes require admin.
+router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
 @router.get("", response_model=Page[TransactionOut])

@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { TransactionsTable } from "@/components/transactions/transactions-table"
 
 export default function TransactionsPage() {
@@ -9,7 +11,9 @@ export default function TransactionsPage() {
           Browse and filter all transactions.
         </p>
       </header>
-      <TransactionsTable />
+      <Suspense fallback={null}>
+        <TransactionsTable />
+      </Suspense>
     </div>
   )
 }

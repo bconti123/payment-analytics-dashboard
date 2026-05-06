@@ -5,15 +5,12 @@ from fastapi import status as http_status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.deps import get_current_user, require_admin
+from app.core.deps import require_admin
 from app.schemas import Page, RefundCreate, RefundOut
 from app.services import BusinessRuleError, NotFoundError, refund_service
 
-router = APIRouter(
-    prefix="/refunds",
-    tags=["refunds"],
-    dependencies=[Depends(get_current_user)],
-)
+# GET routes are public; only writes require admin.
+router = APIRouter(prefix="/refunds", tags=["refunds"])
 
 
 @router.get("", response_model=Page[RefundOut])

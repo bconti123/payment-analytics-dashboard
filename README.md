@@ -5,10 +5,10 @@
 A full-stack payment analytics dashboard that helps businesses track transactions, refunds, revenue trends, and operational metrics.
 
 **Live demo:**
-- Frontend: https://payment-analytics.vercel.app
+- Frontend: https://payment-analytics.vercel.app — no login needed; the dashboard is public.
 - API: https://payment-analytics-api-production.up.railway.app · [Swagger UI](https://payment-analytics-api-production.up.railway.app/docs)
 
-Sign in with `admin@example.com` / `devpassword` (or `viewer@example.com` for read-only).
+Sign in as `admin@example.com` / `devpassword` (or `viewer@example.com`) to exercise the protected routes — weekly AI insight, CSV import, write operations.
 
 **Status:** Deployed to production — Vercel (Next.js frontend) + Railway (FastAPI in a persistent container) backed by Neon Postgres. Also runnable locally with one `docker compose up`.
 
@@ -265,9 +265,13 @@ All endpoints are prefixed with `/api/v1`.
 
 ### Auth
 
-JWT bearer auth (HS256) protects all API routes except `/health` and `/`. Two roles:
-- **admin** — reads everything plus writes (transactions, refunds, CSV import) and the paid weekly insight call.
-- **viewer** — reads everything; gets `403` on writes.
+JWT bearer auth (HS256) over an OAuth2 password flow. The gating intentionally favors the demo experience:
+
+- **Reads are public** — dashboard, transactions, refunds. A recruiter clicking the live link sees real data immediately, not a login wall.
+- **Writes are admin-only** — `POST /transactions`, `POST /refunds`, `POST /imports/csv` return `403` for viewers and `401` for unauthed.
+- **Weekly AI insight is auth-gated** for any logged-in user — each call costs Claude credits, so it's gated to keep the demo cost predictable.
+
+Two roles: **admin** (reads + writes + weekly insight) and **viewer** (reads + weekly insight, no writes).
 
 | Method | Path | Description |
 |---|---|---|

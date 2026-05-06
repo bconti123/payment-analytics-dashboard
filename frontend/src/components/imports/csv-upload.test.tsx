@@ -13,6 +13,20 @@ vi.mock("@/lib/api", async () => {
   }
 })
 
+vi.mock("@/lib/auth/context", () => ({
+  useAuth: () => ({
+    status: "authenticated",
+    user: {
+      id: "admin-id",
+      email: "admin@example.com",
+      role: "admin",
+      created_at: "2026-01-01T00:00:00Z",
+    },
+    login: vi.fn(),
+    logout: vi.fn(),
+  }),
+}))
+
 import { uploadCsv } from "@/lib/api"
 const mockUploadCsv = vi.mocked(uploadCsv)
 

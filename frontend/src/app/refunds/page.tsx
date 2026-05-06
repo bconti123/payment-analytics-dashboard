@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { RefundsTable } from "@/components/refunds/refunds-table"
 
 export default function RefundsPage() {
@@ -9,7 +11,9 @@ export default function RefundsPage() {
           All refund activity across transactions.
         </p>
       </header>
-      <RefundsTable />
+      <Suspense fallback={null}>
+        <RefundsTable />
+      </Suspense>
     </div>
   )
 }

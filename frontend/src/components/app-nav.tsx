@@ -1,6 +1,6 @@
 "use client"
 
-import { FileUp, LayoutDashboard, LogOut, Receipt, Undo2 } from "lucide-react"
+import { FileUp, LayoutDashboard, LogIn, LogOut, Receipt, Undo2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 
@@ -57,26 +57,36 @@ export function Sidebar() {
           )
         })}
       </nav>
-      {user && (
-        <div className="border-t border-sidebar-border px-3 py-3">
-          <div className="px-2 pb-2">
-            <div className="truncate text-xs font-medium" title={user.email}>
-              {user.email}
+      <div className="border-t border-sidebar-border px-3 py-3">
+        {user ? (
+          <>
+            <div className="px-2 pb-2">
+              <div className="truncate text-xs font-medium" title={user.email}>
+                {user.email}
+              </div>
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                {user.role}
+              </div>
             </div>
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {user.role}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleLogout}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+            >
+              <LogOut className="size-4" />
+              Log out
+            </button>
+          </>
+        ) : (
+          <Link
+            href="/login"
             className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
           >
-            <LogOut className="size-4" />
-            Log out
-          </button>
-        </div>
-      )}
+            <LogIn className="size-4" />
+            Sign in
+          </Link>
+        )}
+      </div>
     </aside>
   )
 }
@@ -99,7 +109,7 @@ export function MobileNav() {
         </h1>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          {user && (
+          {user ? (
             <button
               type="button"
               onClick={handleLogout}
@@ -108,6 +118,14 @@ export function MobileNav() {
             >
               <LogOut className="size-4" />
             </button>
+          ) : (
+            <Link
+              href="/login"
+              aria-label="Sign in"
+              className="rounded-md p-1.5 text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+            >
+              <LogIn className="size-4" />
+            </Link>
           )}
         </div>
       </div>

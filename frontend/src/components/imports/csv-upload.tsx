@@ -1,7 +1,8 @@
 "use client"
 
 import { useMutation } from "@tanstack/react-query"
-import { CheckCircle2, FileUp, XCircle } from "lucide-react"
+import { CheckCircle2, FileUp, LogIn, XCircle } from "lucide-react"
+import Link from "next/link"
 import { useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -13,8 +14,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { ApiError, uploadCsv, type ImportResult } from "@/lib/api"
+import { useAuth } from "@/lib/auth/context"
 
 export function CsvUpload() {
+  const { user } = useAuth()
+  const isAdmin = user?.role === "admin"
   const [file, setFile] = useState<File | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -52,7 +56,26 @@ export function CsvUpload() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-3">
+        {!isAdmin && (
+          <div className="mb-4 rounded-md border border-border bg-muted/40 p-4 text-sm">
+            <p className="text-muted-foreground">
+              CSV import is admin-only. Sign in as{" "}
+              <code className="font-mono text-xs">admin@example.com</code> /{" "}
+              <code className="font-mono text-xs">devpassword</code> to upload.
+            </p>
+            <Link
+              href="/login"
+              className="mt-3 inline-flex h-7 items-center gap-1.5 rounded-md bg-secondary px-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+            >
+              <LogIn className="size-3.5" aria-hidden />
+              Sign in
+            </Link>
+          </div>
+        )}
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-wrap items-center gap-3"
+        >
           <label className="sr-only" htmlFor="csv-file">CSV file</label>
           <input
             ref={inputRef}
@@ -61,9 +84,10 @@ export function CsvUpload() {
             type="file"
             accept=".csv,text/csv"
             onChange={handleFile}
-            className="block text-sm file:mr-3 file:rounded-md file:border file:border-border file:bg-muted file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/80"
+            disabled={!isAdmin}
+            className="block text-sm file:mr-3 file:rounded-md file:border file:border-border file:bg-muted file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-50"
           />
-          <Button type="submit" disabled={!file || upload.isPending}>
+          <Button type="submit" disabled={!isAdmin || !file || upload.isPending}>
             {upload.isPending ? "Importing..." : "Upload"}
           </Button>
           {(file || upload.data) && (

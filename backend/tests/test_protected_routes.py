@@ -1,19 +1,29 @@
 """Auth gating on existing routers.
 
-Confirms each protected route returns 401 without a token, and that the
-viewer role gets 403 on admin-only writes.
+Reads (dashboard, transactions, refunds) are intentionally public so the
+deployed demo doesn't gate visitors behind a login wall. Insights stays
+auth-gated because each call costs Claude credits. Writes are admin-only.
 """
 import pytest
 
 GET_PROTECTED = [
+    "/api/v1/insights/weekly",
+]
+
+GET_PUBLIC = [
     "/api/v1/transactions",
     "/api/v1/refunds",
     "/api/v1/dashboard/summary",
     "/api/v1/dashboard/revenue-trend",
     "/api/v1/dashboard/refund-trend",
     "/api/v1/dashboard/anomalies",
-    "/api/v1/insights/weekly",
 ]
+
+
+@pytest.mark.parametrize("path", GET_PUBLIC)
+def test_get_routes_are_public(unauthed_client, path):
+    res = unauthed_client.get(path)
+    assert res.status_code == 200, f"{path} returned {res.status_code}, expected 200"
 
 
 @pytest.mark.parametrize("path", GET_PROTECTED)

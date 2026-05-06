@@ -1,7 +1,8 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { RefreshCw, Sparkles } from "lucide-react"
+import { LogIn, RefreshCw, Sparkles } from "lucide-react"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,15 +14,19 @@ import {
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ApiError, getWeeklyInsight } from "@/lib/api"
+import { useAuth } from "@/lib/auth/context"
 
 const QUERY_KEY = ["insights", "weekly"] as const
 
 export function WeeklyInsightCard() {
   const queryClient = useQueryClient()
+  const { status: authStatus } = useAuth()
+  const isAuthed = authStatus === "authenticated"
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: () => getWeeklyInsight(),
+    enabled: isAuthed,
     retry: false,
     staleTime: 5 * 60 * 1000,
   })
@@ -73,21 +78,40 @@ export function WeeklyInsightCard() {
         )}
       </CardHeader>
       <CardContent>
-        {isLoading && (
+        {!isAuthed && <SignInPrompt />}
+        {isAuthed && isLoading && (
           <div className="space-y-2">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-11/12" />
             <Skeleton className="h-4 w-3/4" />
           </div>
         )}
-        {isError && <ErrorState error={error} />}
-        {data && (
+        {isAuthed && isError && <ErrorState error={error} />}
+        {isAuthed && data && (
           <p className="text-sm leading-relaxed text-foreground">
             {data.narrative}
           </p>
         )}
       </CardContent>
     </Card>
+  )
+}
+
+function SignInPrompt() {
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        AI-generated narrative comparing this week to last week. Sign in to
+        generate one — gated to keep API costs predictable.
+      </p>
+      <Link
+        href="/login"
+        className="inline-flex h-7 items-center gap-1.5 rounded-md bg-secondary px-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+      >
+        <LogIn className="size-3.5" aria-hidden />
+        Sign in
+      </Link>
+    </div>
   )
 }
 
